@@ -1,0 +1,819 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>World News Hub</title>
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css" rel="stylesheet">
+    <style>
+        :root {
+            --primary-gradient: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            --secondary-gradient: linear-gradient(135deg, #74b9ff, #0984e3);
+            --accent-gradient: linear-gradient(135deg, #fd79a8, #e84393);
+            --success-gradient: linear-gradient(135deg, #00b894, #00a085);
+            --card-shadow: 0 10px 30px rgba(0,0,0,0.1);
+            --card-shadow-hover: 0 20px 40px rgba(0,0,0,0.15);
+            --border-radius: 15px;
+            --transition: all 0.3s cubic-bezier(0.25, 0.8, 0.25, 1);
+        }
+
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            line-height: 1.6;
+            color: #2c3e50;
+            background: linear-gradient(135deg, #f5f7fa 0%, #c3cfe2 100%);
+            min-height: 100vh;
+        }
+
+        .container {
+            max-width: 1400px;
+            margin: 0 auto;
+            padding: 20px;
+        }
+
+        /* Header Styles */
+        header {
+            text-align: center;
+            margin-bottom: 40px;
+            padding: 40px 20px;
+            background: var(--primary-gradient);
+            color: white;
+            border-radius: var(--border-radius);
+            box-shadow: var(--card-shadow);
+            position: relative;
+            overflow: hidden;
+        }
+
+        header::before {
+            content: '';
+            position: absolute;
+            top: -50%;
+            left: -50%;
+            width: 200%;
+            height: 200%;
+            background: radial-gradient(circle, rgba(255,255,255,0.1) 0%, transparent 70%);
+            animation: float 6s ease-in-out infinite;
+        }
+
+        @keyframes float {
+            0%, 100% { transform: translateY(0px) rotate(0deg); }
+            50% { transform: translateY(-20px) rotate(180deg); }
+        }
+
+        h1 {
+            font-size: 3em;
+            margin-bottom: 10px;
+            font-weight: 700;
+            text-shadow: 2px 2px 4px rgba(0,0,0,0.3);
+            position: relative;
+            z-index: 1;
+        }
+
+        .author-name {
+            font-size: 1.3em;
+            margin-bottom: 10px;
+            opacity: 0.9;
+            letter-spacing: 2px;
+            position: relative;
+            z-index: 1;
+        }
+
+        .subtitle {
+            font-size: 1.1em;
+            opacity: 0.8;
+            position: relative;
+            z-index: 1;
+        }
+
+        /* Search Controls */
+        .controls {
+            background: rgba(255, 255, 255, 0.95);
+            backdrop-filter: blur(10px);
+            padding: 25px;
+            border-radius: var(--border-radius);
+            box-shadow: var(--card-shadow);
+            margin-bottom: 30px;
+            border: 1px solid rgba(255, 255, 255, 0.2);
+        }
+
+        .search-form {
+            display: flex;
+            gap: 15px;
+            align-items: center;
+            flex-wrap: wrap;
+        }
+
+        .search-input {
+            flex: 1;
+            min-width: 250px;
+            padding: 15px 20px;
+            border: 2px solid transparent;
+            border-radius: 50px;
+            font-size: 1em;
+            outline: none;
+            background: rgba(255, 255, 255, 0.8);
+            transition: var(--transition);
+            box-shadow: inset 0 2px 4px rgba(0,0,0,0.1);
+        }
+
+        .search-input:focus {
+            border-color: #667eea;
+            box-shadow: 0 0 0 3px rgba(102, 126, 234, 0.1);
+            background: white;
+        }
+
+        .btn {
+            padding: 15px 25px;
+            border: none;
+            border-radius: 50px;
+            cursor: pointer;
+            font-size: 1em;
+            font-weight: 600;
+            transition: var(--transition);
+            text-decoration: none;
+            display: inline-flex;
+            align-items: center;
+            gap: 8px;
+            white-space: nowrap;
+        }
+
+        .btn-primary {
+            background: var(--primary-gradient);
+            color: white;
+            box-shadow: 0 4px 15px rgba(102, 126, 234, 0.3);
+        }
+
+        .btn-accent {
+            background: var(--accent-gradient);
+            color: white;
+            box-shadow: 0 4px 15px rgba(253, 121, 168, 0.3);
+        }
+
+        .btn:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 8px 25px rgba(0,0,0,0.2);
+        }
+
+        .btn:active {
+            transform: translateY(0);
+        }
+
+        /* News Cards */
+        .section-title {
+            font-size: 2.2em;
+            background: var(--primary-gradient);
+            background-clip: text;
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            margin-bottom: 30px;
+            text-align: center;
+            font-weight: 700;
+            position: relative;
+        }
+
+        .section-title::after {
+            content: '';
+            position: absolute;
+            bottom: -10px;
+            left: 50%;
+            transform: translateX(-50%);
+            width: 60px;
+            height: 4px;
+            background: var(--primary-gradient);
+            border-radius: 2px;
+        }
+
+        .news-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(350px, 1fr));
+            gap: 25px;
+            margin-bottom: 40px;
+        }
+
+        .news-card {
+            background: rgba(255, 255, 255, 0.95);
+            backdrop-filter: blur(10px);
+            border-radius: var(--border-radius);
+            overflow: hidden;
+            box-shadow: var(--card-shadow);
+            transition: var(--transition);
+            border: 1px solid rgba(255, 255, 255, 0.2);
+            position: relative;
+        }
+
+        .news-card::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            right: 0;
+            height: 4px;
+            background: var(--primary-gradient);
+            transform: scaleX(0);
+            transition: var(--transition);
+        }
+
+        .news-card:hover {
+            transform: translateY(-8px);
+            box-shadow: var(--card-shadow-hover);
+        }
+
+        .news-card:hover::before {
+            transform: scaleX(1);
+        }
+
+        .news-image {
+            width: 100%;
+            height: 220px;
+            object-fit: cover;
+            transition: var(--transition);
+        }
+
+        .news-card:hover .news-image {
+            transform: scale(1.05);
+        }
+
+        .no-image {
+            width: 100%;
+            height: 220px;
+            background: linear-gradient(135deg, #f8f9fa, #e9ecef);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            color: #6c757d;
+            font-size: 1.1em;
+        }
+
+        .news-content {
+            padding: 25px;
+        }
+
+        .news-title {
+            font-size: 1.3em;
+            font-weight: 700;
+            margin-bottom: 12px;
+            color: #2c3e50;
+            line-height: 1.4;
+            display: -webkit-box;
+            -webkit-line-clamp: 2;
+            -webkit-box-orient: vertical;
+            overflow: hidden;
+        }
+
+        .news-title a {
+            color: inherit;
+            text-decoration: none;
+            transition: var(--transition);
+        }
+
+        .news-title a:hover {
+            color: #667eea;
+        }
+
+        .news-description {
+            color: #666;
+            margin-bottom: 20px;
+            line-height: 1.6;
+            display: -webkit-box;
+            -webkit-line-clamp: 3;
+            -webkit-box-orient: vertical;
+            overflow: hidden;
+        }
+
+        .news-meta {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            font-size: 0.9em;
+            color: #888;
+            margin-top: 20px;
+            padding-top: 20px;
+            border-top: 1px solid #eee;
+        }
+
+        .news-source {
+            font-weight: 600;
+            color: #667eea;
+            display: flex;
+            align-items: center;
+            gap: 5px;
+        }
+
+        .news-date {
+            font-style: italic;
+            display: flex;
+            align-items: center;
+            gap: 5px;
+        }
+
+        .read-later {
+            position: absolute;
+            top: 15px;
+            right: 15px;
+            background: rgba(255, 255, 255, 0.9);
+            border: none;
+            border-radius: 50%;
+            width: 40px;
+            height: 40px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            cursor: pointer;
+            transition: var(--transition);
+            box-shadow: 0 2px 10px rgba(0,0,0,0.1);
+        }
+
+        .read-later:hover {
+            background: #fff;
+            transform: scale(1.1);
+            color: #e74c3c;
+        }
+
+        /* Read Later Section */
+        .read-later-section {
+            background: rgba(255, 255, 255, 0.95);
+            backdrop-filter: blur(10px);
+            padding: 30px;
+            border-radius: var(--border-radius);
+            box-shadow: var(--card-shadow);
+            margin-top: 40px;
+        }
+
+        .read-later-item {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            padding: 15px;
+            margin-bottom: 10px;
+            background: rgba(102, 126, 234, 0.05);
+            border-radius: 10px;
+            transition: var(--transition);
+        }
+
+        .read-later-item:hover {
+            background: rgba(102, 126, 234, 0.1);
+        }
+
+        .read-later-item a {
+            color: #2c3e50;
+            text-decoration: none;
+            flex: 1;
+            margin-right: 15px;
+        }
+
+        .read-later-item button {
+            background: #e74c3c;
+            color: white;
+            border: none;
+            border-radius: 50%;
+            width: 30px;
+            height: 30px;
+            cursor: pointer;
+            transition: var(--transition);
+        }
+
+        .read-later-item button:hover {
+            background: #c0392b;
+            transform: scale(1.1);
+        }
+
+        /* Notification */
+        .notification {
+            position: fixed;
+            top: 20px;
+            right: 20px;
+            background: var(--success-gradient);
+            color: white;
+            padding: 15px 25px;
+            border-radius: 10px;
+            display: none;
+            z-index: 1000;
+            box-shadow: var(--card-shadow);
+            animation: slideIn 0.3s ease-out;
+        }
+
+        @keyframes slideIn {
+            from { opacity: 0; transform: translateX(100%); }
+            to { opacity: 1; transform: translateX(0); }
+        }
+
+        /* Search Results */
+        .search-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 25px;
+            padding: 20px;
+            background: rgba(255, 255, 255, 0.8);
+            border-radius: var(--border-radius);
+        }
+
+        .search-info {
+            color: #666;
+            font-style: italic;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+
+        .clear-search {
+            color: #e74c3c;
+            text-decoration: none;
+            padding: 10px 20px;
+            border: 2px solid #e74c3c;
+            border-radius: 25px;
+            transition: var(--transition);
+            font-weight: 600;
+        }
+
+        .clear-search:hover {
+            background: #e74c3c;
+            color: white;
+            transform: translateY(-2px);
+        }
+
+        /* Error and Loading States */
+        .error, .loading {
+            text-align: center;
+            padding: 40px;
+            border-radius: var(--border-radius);
+            margin: 20px 0;
+        }
+
+        .error {
+            color: #e74c3c;
+            background: rgba(231, 76, 60, 0.1);
+            border: 1px solid rgba(231, 76, 60, 0.2);
+        }
+
+        .loading {
+            color: #666;
+            background: rgba(108, 117, 125, 0.1);
+            border: 1px solid rgba(108, 117, 125, 0.2);
+        }
+
+        /* Responsive Design */
+        @media (max-width: 768px) {
+            .container {
+                padding: 15px;
+            }
+            
+            h1 {
+                font-size: 2.2em;
+            }
+            
+            .search-form {
+                flex-direction: column;
+                align-items: stretch;
+            }
+            
+            .search-input {
+                min-width: auto;
+                margin-bottom: 15px;
+            }
+            
+            .btn {
+                justify-content: center;
+                margin-bottom: 10px;
+            }
+            
+            .news-grid {
+                grid-template-columns: 1fr;
+            }
+            
+            .news-meta {
+                flex-direction: column;
+                align-items: flex-start;
+                gap: 8px;
+            }
+
+            .search-header {
+                flex-direction: column;
+                gap: 15px;
+                text-align: center;
+            }
+        }
+
+        @media (max-width: 480px) {
+            .controls {
+                padding: 20px;
+            }
+            
+            .news-content {
+                padding: 20px;
+            }
+            
+            h1 {
+                font-size: 1.8em;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <header>
+            <h1><i class="fas fa-globe-americas"></i> World News Hub</h1>
+            <div class="author-name">MARYAM FATIMA</div>
+            <p class="subtitle">Stay informed with the latest news from around the globe</p>
+        </header>
+
+        <!-- Search Controls -->
+        <div class="controls">
+            <form class="search-form" method="GET">
+                <input type="text" name="search" placeholder="Search for news, topics, or keywords..." class="search-input" value="{{ search_query or '' }}" />
+                <button type="submit" class="btn btn-primary">
+                    <i class="fas fa-search"></i> Search
+                </button>
+                <button type="button" onclick="savePageAsPDF()" class="btn btn-accent">
+                    <i class="fas fa-file-pdf"></i> Save PDF
+                </button>
+            </form>
+        </div>
+
+        <div id="notification" class="notification"></div>
+
+        {% if search_query %}
+            <div class="search-header">
+                <div class="search-info">
+                    <i class="fas fa-search"></i>
+                    Results for "{{ search_query }}"
+                    {% if search_results %} ({{ search_results|length }} articles found) {% endif %}
+                </div>
+                <a href="/" class="clear-search">
+                    <i class="fas fa-times"></i> Clear Search
+                </a>
+            </div>
+
+            {% if search_results %}
+                <div class="news-grid">
+                    {% for article in search_results %}
+                        <div class="news-card">
+                            {% if article.urlToImage %}
+                                <img src="{{article.urlToImage}}" class="news-image" alt="{{article.title}}" />
+                            {% else %}
+                                <div class="no-image">
+                                    <i class="fas fa-image fa-2x"></i>
+                                </div>
+                            {% endif %}
+                            <div class="news-content">
+                                <h3 class="news-title">
+                                    <a href="{{article.url}}" target="_blank">{{article.title}}</a>
+                                </h3>
+                                {% if article.description %}
+                                    <p class="news-description">{{article.description}}</p>
+                                {% endif %}
+                                <button class="read-later" style="position: static; margin-top: 10px;" onclick="addReadLater('{{article.url}}', '{{article.title}}')">
+                                    <i class="far fa-bookmark"></i> Read Later
+                                </button>
+                                <div class="news-meta">
+                                    <span class="news-source">
+                                        <i class="fas fa-globe"></i>
+                                        {{article.source.name}}
+                                    </span>
+                                    <span class="news-date">
+                                        <i class="far fa-clock"></i>
+                                        {{format_date(article.publishedAt)}}
+                                    </span>
+                                </div>
+                            </div>
+                        </div>
+                    {% endfor %}
+                </div>
+            {% else %}
+                <div class="error">
+                    <i class="fas fa-search"></i>
+                    <h3>No results found for "{{ search_query }}"</h3>
+                    <p>Try different keywords or check your spelling</p>
+                </div>
+            {% endif %}
+        {% else %}
+            {% if general_news %}
+                <h2 class="section-title">
+                    <i class="fas fa-newspaper"></i> Top Headlines
+                </h2>
+                <div class="news-grid">
+                    {% for article in general_news %}
+                        <div class="news-card">
+                            {% if article.urlToImage %}
+                                <img src="{{article.urlToImage}}" class="news-image" alt="{{article.title}}" />
+                            {% else %}
+                                <div class="no-image">
+                                    <i class="fas fa-image fa-2x"></i>
+                                </div>
+                            {% endif %}
+                            <div class="news-content">
+                                <h3 class="news-title">
+                                    <a href="{{article.url}}" target="_blank">{{article.title}}</a>
+                                </h3>
+                                {% if article.description %}
+                                    <p class="news-description">{{article.description}}</p>
+                                {% endif %}
+                                <button class="read-later" style="position: static; margin-top: 10px;" onclick="addReadLater('{{article.url}}', '{{article.title}}')">
+                                    <i class="far fa-bookmark"></i> 
+                                </button>
+                                <div class="news-meta">
+                                    <span class="news-source">
+                                        <i class="fas fa-globe"></i>
+                                        {{article.source.name}}
+                                    </span>
+                                    <span class="news-date">
+                                        <i class="far fa-clock"></i>
+                                        {{format_date(article.publishedAt)}}
+                                    </span>
+                                </div>
+                            </div>
+                        </div>
+                    {% endfor %}
+                </div>
+            {% endif %}
+        {% endif %}
+
+        {% if api_error %}
+            <div class="error">
+                <i class="fas fa-exclamation-triangle"></i>
+                <h3>Unable to fetch news</h3>
+                <p>{{ api_error }}</p>
+            </div>
+        {% endif %}
+
+        <!-- Read Later Section -->
+        <div class="read-later-section">
+            <h2 class="section-title">
+                <i class="fas fa-bookmark"></i> Read Later
+            </h2>
+            <div id="readLaterList">
+                <div class="loading">
+                    <i class="fas fa-spinner fa-spin"></i>
+                    Loading saved articles...
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        // Read Later functionality without localStorage
+        let readLaterArticles = [];
+
+        function addReadLater(url, title) {
+            const article = { url, title, dateAdded: new Date().toISOString() };
+            
+            // Check if already exists
+            if (!readLaterArticles.find(item => item.url === url)) {
+                readLaterArticles.unshift(article);
+                showNotification("Article saved to Read Later!");
+                renderReadLater();
+                
+                // Update bookmark icon
+                if (event && event.target) {
+                    event.target.innerHTML = '<i class="fas fa-bookmark"></i>';
+                }
+            } else {
+                showNotification("Article already in Read Later", "error");
+            }
+        }
+
+        function renderReadLater() {
+            const container = document.getElementById("readLaterList");
+            
+            if (readLaterArticles.length === 0) {
+                container.innerHTML = `
+                    <div class="error">
+                        <i class="fas fa-bookmark"></i>
+                        <h3>No saved articles</h3>
+                        <p>Click the bookmark icon on any article to save it for later</p>
+                    </div>
+                `;
+                return;
+            }
+            
+            let html = "";
+            readLaterArticles.forEach((article, index) => {
+                const date = new Date(article.dateAdded).toLocaleDateString();
+                html += `
+                    <div class="read-later-item">
+                        <a href="${article.url}" target="_blank">${article.title}</a>
+                        <div style="display: flex; align-items: center; gap: 10px;">
+                            <small style="color: #888;">${date}</small>
+                            <button onclick="removeReadLater(${index})" title="Remove from Read Later">
+                                <i class="fas fa-trash"></i>
+                            </button>
+                        </div>
+                    </div>
+                `;
+            });
+            
+            container.innerHTML = html;
+        }
+
+        function removeReadLater(index) {
+            readLaterArticles.splice(index, 1);
+            renderReadLater();
+            showNotification("Article removed from Read Later");
+        }
+
+        function showNotification(msg, type = "success") {
+            const notification = document.getElementById("notification");
+            notification.textContent = msg;
+            notification.className = `notification${type === "error" ? " error" : ""}`;
+            notification.style.display = "block";
+            
+            setTimeout(() => {
+                notification.style.display = "none";
+            }, 3000);
+        }
+
+        function savePageAsPDF() {
+            showNotification("Opening print dialog...");
+            setTimeout(() => {
+                window.print();
+            }, 500);
+        }
+
+        // Scroll animations
+        function animateOnScroll() {
+            const cards = document.querySelectorAll('.news-card');
+            const observer = new IntersectionObserver((entries) => {
+                entries.forEach(entry => {
+                    if (entry.isIntersecting) {
+                        entry.target.style.opacity = '1';
+                        entry.target.style.transform = 'translateY(0)';
+                    }
+                });
+            }, {
+                threshold: 0.1,
+                rootMargin: '0px 0px -50px 0px'
+            });
+
+            cards.forEach(card => {
+                card.style.opacity = '0';
+                card.style.transform = 'translateY(30px)';
+                card.style.transition = 'opacity 0.6s ease, transform 0.6s ease';
+                observer.observe(card);
+            });
+        }
+
+        // Enhanced search functionality
+        function enhanceSearch() {
+            const searchInput = document.querySelector('.search-input');
+            const searchForm = document.querySelector('.search-form');
+            
+            searchInput.addEventListener('keypress', function(e) {
+                if (e.key === 'Enter') {
+                    searchForm.submit();
+                }
+            });
+        }
+
+        // Initialize functionality
+        document.addEventListener('DOMContentLoaded', function() {
+            renderReadLater();
+            animateOnScroll();
+            enhanceSearch();
+            
+            // Add loading states for images
+            const images = document.querySelectorAll('.news-image');
+            images.forEach(img => {
+                img.addEventListener('load', function() {
+                    this.style.opacity = '1';
+                });
+                img.addEventListener('error', function() {
+                    this.parentElement.innerHTML = `
+                        <div class="no-image">
+                            <i class="fas fa-image fa-2x"></i>
+                        </div>
+                    `;
+                });
+            });
+        });
+
+        // Keyboard navigation
+        document.addEventListener('keydown', function(e) {
+            // Ctrl/Cmd + K to focus search
+            if ((e.ctrlKey || e.metaKey) && e.key === 'k') {
+                e.preventDefault();
+                document.querySelector('.search-input').focus();
+            }
+        });
+
+        // Smooth scrolling
+        document.querySelectorAll('a[href^="#"]').forEach(anchor => {
+            anchor.addEventListener('click', function (e) {
+                e.preventDefault();
+                const target = document.querySelector(this.getAttribute('href'));
+                if (target) {
+                    target.scrollIntoView({
+                        behavior: 'smooth',
+                        block: 'start'
+                    });
+                }
+            });
+        });
+    </script>
+</body>
+</html>
